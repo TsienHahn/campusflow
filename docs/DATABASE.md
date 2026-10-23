@@ -1,0 +1,111 @@
+# Data model and API
+
+## Entity relationships
+
+```mermaid
+erDiagram
+    students ||--o{ enrollments : registers
+    courses ||--o{ enrollments : includes
+    students ||--o{ tasks : owns
+    courses o|--o{ tasks : concerns
+    students ||--o{ study_sessions : records
+    courses ||--o{ study_sessions : concerns
+    students {
+        integer id PK
+        text student_number UK
+        text name
+        text email
+        text program
+        integer semester
+        integer target_credits
+    }
+    courses {
+        integer id PK
+        text code UK
+        integer credits
+        integer weekday
+        text start_time
+        text end_time
+        integer capacity
+    }
+    enrollments {
+        integer student_id PK,FK
+        integer course_id PK,FK
+        integer progress
+        real grade
+        text status
+    }
+    tasks {
+        integer id PK
+        integer student_id FK
+        integer course_id FK
+        text due_date
+        integer completed
+    }
+    study_sessions {
+        integer id PK
+        integer student_id FK
+        integer course_id FK
+        text study_date
+        integer minutes
+    }
+```
+
+`enrollments` resolves the student/course many-to-many relationship. Its composite
+primary key prevents duplicate registrations. `tasks.course_id` is nullable for
+academic-planning tasks. Foreign keys are enabled for each connection.
+CHECK constraints bound progress, GPA, completion state and valid weekdays.
+The date index supports a student's weekly study query.
+
+## Metric definitions
+
+| Metric | Calculation | Seeded example |
+|---|---|---|
+| Active courses | Count enrollments with status `active` | 3 |
+| Earned credits | Sum credits for `completed` enrollments | 72 |
+| GPA | Sum(grade × credits) / sum(credits with grades) | 3.60 / 4.00 |
+| Weekly study | Sum session minutes Monday–Sunday, divided by 60 | Depends on snapshot day |
+| Pending tasks | Count tasks with `completed=0` | 4 |
+
+Only existing session records contribute to the weekly trend; no future values
+are fabricated. Dates are ISO strings, times are zero-padded 24-hour strings.
+All course meeting times refer to the same local teaching timezone in this demo.
+
+## Enrollment transaction
+
+1. Start `BEGIN IMMEDIATE` to serialize competing SQLite writers.
+2. Validate the course and reject an existing registration.
+3. Count active enrollments against capacity.
+4. Reject a same-day overlap where existing start < new end and existing end > new start.
+5. Insert and commit; validation failure rolls back automatically.
+
+Back-to-back classes are allowed. Dropping a course removes its active enrollment
+only; existing learning logs and tasks are retained.
+
+## Endpoints
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/dashboard` | Current student, enrolled courses, catalog, tasks, weekly trend, totals and date |
+| POST | `/api/profile` | Update demo student's name and email |
+| POST | `/api/tasks` | Update owned task completion |
+| POST | `/api/enrollments` | Enroll or drop |
+
+Example bodies:
+
+```json
+{"name":"Alex Morgan","email":"alex@example.org"}
+```
+
+```json
+{"id":1,"completed":true}
+```
+
+```json
+{"course_id":4,"enroll":true}
+```
+
+POST success returns `{"ok":true}`. Invalid inputs/business-rule failures return
+400, rejected cross-origin writes 403, missing routes 404 and SQL failures 500.
+SQL parameters are bound; frontend record text is escaped before HTML rendering.
+The server is a loopback-only single-user demonstration, not an authentication system.
