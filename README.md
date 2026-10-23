@@ -2,7 +2,7 @@
 
 **From relational data to a student workspace.** CampusFlow connects a responsive,
 English-language dashboard to a real SQLite database through a Python API.
-Students can explore courses, manage enrollments, track tasks and review academic
+After signing in, students can explore courses, manage enrollments, track tasks and review academic
 progress in one place.
 
 **Python · SQLite · SQL · JavaScript · HTML · CSS · GitHub Actions**
@@ -35,7 +35,7 @@ A student's course choices, weekly schedule, tasks and academic results often
 live in separate views. This project brings those records into one SQL-backed
 workspace, with aggregates that stay consistent after a student changes data.
 
-The first version focuses on a **single fictional student**. It is a portfolio
+The seeded version includes **one fictional student account**. API reads and writes use the signed-in student identity. It is a portfolio
 and learning project, not a deployed university information system.
 
 | View | Working behavior | Data source |
@@ -58,7 +58,7 @@ Requires Python **3.10+**. No third-party packages or API keys are required.
 python app.py
 ```
 
-Open http://127.0.0.1:8000. On Windows you can use `py`; on macOS/Linux,
+Open http://127.0.0.1:8000 and sign in with username `alex.morgan` and password `CampusFlow2026!`. Sessions expire after 8 hours; use **Sign out** to end a session. [Login upgrade instructions / 中文](docs/LOGIN_SETUP_ZH.md). On Windows you can use `py`; on macOS/Linux,
 `python3`. The database initializes automatically on first launch. Refreshing or
 restarting does not erase changes. [Detailed setup](docs/LOCAL_SETUP.md).
 
@@ -84,7 +84,7 @@ and does **not** run the Python server or connect to live SQLite.
 
 ## Reproduce an end-to-end change
 
-1. Start the local app; the demo student has **3 active courses**.
+1. Start the local app and sign in; the demo student has **3 active courses**.
 2. Open **Course Selection** and enroll in **Data Visualization**.
 3. Return to Overview: active courses increase to **4** and the weekly timetable
    includes the new course.
@@ -141,8 +141,9 @@ intentionally committed, generated demonstration outputs with no private data.
 
 ## Limitations and next steps
 
-- Current identity is demo student ID 1; add login and per-student authorization
-  before using real records.
+- Login uses salted PBKDF2 password hashes and expiring, server-side sessions.
+  The included account is a public local demo credential; no registration or password-reset UI is provided.
+  For deployment, add HTTPS/Secure cookies, login throttling and an account lifecycle policy.
 - Study logs, progress and grades are seed data; there is no automatic activity
   collection, teacher grading interface or learning content player.
 - Uses a demonstration **4.0 GPA scale**, not the German grading system.

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 — 2026-10-23
+
+- English login page, demo credential fill and sign out.
+- Salted password hashes, expiring server sessions and student-scoped data access.
+- Non-destructive account/session schema initialization for existing databases.
+- Distinct static demo entry screen; no fake authentication on Pages.
+- Explicit UTF-8 text reads/writes for Windows compatibility.
+- Authentication and student-isolation integration tests.
+
 ## 0.1.0 — 2026-10-23
 
 - English seven-view student dashboard with SQL-backed metrics.

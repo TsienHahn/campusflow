@@ -29,3 +29,5 @@ $('#search').addEventListener('input',()=>{if(!['Course Selection','My Courses']
 $('#closeDialog').onclick=()=>$('#profileDialog').close();
 $('#profileForm').onsubmit=async e=>{e.preventDefault();const form=e.target,button=form.querySelector('[type=submit]');button.disabled=true;try{if(await write('/api/profile',{name:form.elements.name.value,email:form.elements.email.value}))$('#profileDialog').close()}finally{button.disabled=false}};
 load().catch(e=>{$('#main').innerHTML='<div class="card">'+esc(e.message)+' <button class="primary" onclick="location.reload()">Retry</button></div>'});
+
+$('#logout').addEventListener('click',()=>location.replace('./'));

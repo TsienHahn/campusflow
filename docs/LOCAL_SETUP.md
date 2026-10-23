@@ -19,7 +19,7 @@ python app.py
 On Windows, use `py app.py` if `python` is unavailable. On macOS/Linux, use
 `python3 app.py` if necessary.
 
-4. Open **http://127.0.0.1:8000** in your browser.
+4. Open **http://127.0.0.1:8000** and sign in (`alex.morgan` / `CampusFlow2026!`).
 5. Stop the server with **Ctrl+C**.
 
 If port 8000 is occupied: `python app.py --port 8080` and open
@@ -43,8 +43,9 @@ count toward the current week. Future/unrecorded days show zero, not forecasts.
 - Task completion toggles persisted to SQL.
 - Responsive layout, keyboard focus, semantic controls and API error feedback.
 
-This is a **single-student local demonstration**, with student ID 1 as the demo
-identity. It deliberately has no login, real LMS integration, grade entry UI or
+The seed includes one fictional student. Login is now required: username
+`alex.morgan`, password `CampusFlow2026!`. API access is scoped to the session student.
+There is no registration, password reset, real LMS integration, grade entry UI or
 course content player. “Details” displays course information. Study logs,
 progress and grades are sample records managed in SQL, not browser activity
 tracking. All text is in English; the UI uses a demonstration 4.0 GPA scale,
@@ -139,9 +140,8 @@ Optional JavaScript syntax check when Node is installed:
 
 ## Extending the project
 
-For a multi-student system, add authentication and authorize every query by the
-signed-in student rather than ID 1. Add migrations, CSRF protection suitable for
-the chosen authentication, monitoring and a production web server before any
-public deployment. To use MySQL/PostgreSQL, replace the connection/SQL layer and
+Authentication now uses salted PBKDF2 hashes and server-side expiring sessions.
+Before public deployment add HTTPS/Secure cookies, login throttling, account
+management, migrations, monitoring and a production server. To use MySQL/PostgreSQL, replace the connection/SQL layer and
 adapt schema, placeholders and transaction handling; they are not drop-in file
 replacements. No connection to an existing university database is configured.

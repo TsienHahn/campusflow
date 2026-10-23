@@ -30,3 +30,14 @@ CREATE TABLE IF NOT EXISTS study_sessions (
 );
 CREATE INDEX IF NOT EXISTS sessions_student_date ON study_sessions(student_id,study_date);
 CREATE INDEX IF NOT EXISTS tasks_student_due ON tasks(student_id,due_date);
+CREATE TABLE IF NOT EXISTS accounts (
+ student_id INTEGER PRIMARY KEY REFERENCES students(id),
+ username TEXT UNIQUE NOT NULL,
+ salt TEXT NOT NULL,
+ password_hash TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sessions (
+ token_hash TEXT PRIMARY KEY,
+ student_id INTEGER NOT NULL REFERENCES accounts(student_id),
+ expires_at REAL NOT NULL
+);

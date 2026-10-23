@@ -33,7 +33,7 @@ screenshot is presented as a browser capture.
 SQLite keeps the project runnable on a laptop and demonstrates real relational
 queries. Python's standard library avoids environment setup friction. Vanilla
 JavaScript keeps API calls and rendering easy to inspect. The tradeoff is that
-this foundation is intentionally small and does not provide an authentication
+this foundation is intentionally small and uses a small built-in session layer instead of an authentication
 framework, production deployment stack or ORM migrations.
 
 ## 4. Model and query data
@@ -66,7 +66,7 @@ Python on GitHub Pages. The full local app demonstrates the persistent writes.
 
 ## Future iteration
 
-Add student authentication and a teacher workflow before using real records.
+Add account management, deployment hardening and a teacher workflow before using real records.
 Then introduce migrations and a production web server; consider PostgreSQL when
 multi-user concurrency justifies it. Collect user feedback before expanding the
 analytics beyond the current study-hour, progress and academic-record views.

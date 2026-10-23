@@ -108,4 +108,22 @@ Example bodies:
 POST success returns `{"ok":true}`. Invalid inputs/business-rule failures return
 400, rejected cross-origin writes 403, missing routes 404 and SQL failures 500.
 SQL parameters are bound; frontend record text is escaped before HTML rendering.
-The server is a loopback-only single-user demonstration, not an authentication system.
+The server remains loopback-only for local demonstration. API reads/writes now require an authenticated session.
+
+## Login and sessions
+
+`accounts` has a student foreign key, unique username, random salt and PBKDF2-HMAC-SHA256 password hash (260,000 iterations).
+`sessions` stores SHA-256 hashes of random tokens and an absolute expiry timestamp.
+Login sets an HttpOnly, SameSite=Strict cookie; sessions expire after eight hours.
+Logout deletes the server-side session and clears its cookie. Secure cookies require
+HTTPS in a future production deployment; this server intentionally uses local HTTP.
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | /login | English login screen |
+| POST | /api/login | Username/password verification; session rotation |
+| POST | /api/logout | Invalidate current session |
+
+Dashboard queries and writes derive student ID from the session, never a request
+body. Anonymous data access returns 401. POST expects JSON; foreign Origin headers
+are rejected. Editing a contact email does not change the login username.

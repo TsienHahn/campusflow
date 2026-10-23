@@ -36,7 +36,8 @@ Windows 如果不识别 python，可以运行 `py app.py`。
 例如选修 Data Visualization，Overview 的课程数量会增加；退课后减少。
 Artificial Intelligence 与 Machine Learning 有时间冲突，会拒绝选课并解释原因。
 
-这是单学生本地演示，使用虚构数据和 4.0 制 GPA。未加入登录、真实学校数据接口、
+这是虚构学生的本地演示，使用 4.0 制 GPA。现已加入登录和退出，账号为 alex.morgan，
+密码为 CampusFlow2026!。详细升级说明见 docs/LOGIN_SETUP_ZH.md。未加入真实学校数据接口、
 课程视频、教师录分或自动学习时长采集。学习记录、成绩和进度可以通过 SQL 修改。
 如需接入你已有的 MySQL／SQL Server／PostgreSQL，需要提供表结构，适配后端数据层。
 
