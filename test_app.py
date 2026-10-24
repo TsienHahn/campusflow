@@ -53,20 +53,61 @@ class IntegrationTests(unittest.TestCase):
 
     def test_student_isolation(self):
         with app.connect() as db:
-            db.execute("INSERT OR IGNORE INTO students VALUES (2,'Other Student','OTHER','other@example.org','CS',1,120)")
+            db.execute("INSERT OR IGNORE INTO students VALUES (999,'Other Student','OTHER','other@example.org','CS',1,120)")
             salt='11'*16
-            db.execute('INSERT OR IGNORE INTO accounts VALUES (2,?,?,?)',('other',salt,app.password_hash('other-password',salt)))
+            db.execute('INSERT OR IGNORE INTO accounts VALUES (999,?,?,?)',('other',salt,app.password_hash('other-password',salt)))
         self.request('/api/login',{'username':'other','password':'other-password'})
         status,d=self.request('/api/dashboard')
         self.assertEqual(status,200)
-        self.assertEqual(d['student']['id'],2)
+        self.assertEqual(d['student']['id'],999)
         self.assertEqual(d['courses'],[])
         self.assertEqual(d['tasks'],[])
         self.assertEqual(self.request('/api/tasks',{'id':1,'completed':True})[0],400)
         self.assertEqual(self.request('/api/enrollments',{'course_id':1,'enroll':True})[0],200)
         with app.connect() as db:
-            self.assertEqual(db.execute('SELECT count(*) FROM enrollments WHERE student_id=2').fetchone()[0],1)
-            db.execute('DELETE FROM enrollments WHERE student_id=2')
+            self.assertEqual(db.execute('SELECT count(*) FROM enrollments WHERE student_id=999').fetchone()[0],1)
+            db.execute('DELETE FROM enrollments WHERE student_id=999')
+
+    def test_registration_login_and_fresh_workspace(self):
+        self.cookie=''
+        payload={'name':'New Student','email':'new@example.org','username':'New.Student',
+                 'password':'StudentPassword123!','confirm_password':'StudentPassword123!',
+                 'program':'Data Science'}
+        self.assertEqual(self.request('/api/register',payload)[0],201)
+        # Registration creates no session; the student signs in explicitly.
+        self.assertEqual(self.request('/api/dashboard')[0],401)
+        self.assertEqual(self.request('/api/login',{'username':'new.student','password':payload['password']})[0],200)
+        status,d=self.request('/api/dashboard')
+        self.assertEqual(status,200)
+        self.assertEqual(d['student']['name'],'New Student')
+        self.assertEqual(d['student']['program'],'Data Science')
+        self.assertNotEqual(d['student']['id'],1)
+        self.assertEqual(d['courses'],[])
+        self.assertEqual(d['tasks'],[])
+        self.assertEqual(d['totals']['credits'],0)
+        self.assertIsNone(d['totals']['gpa'])
+        self.assertEqual(sum(x['minutes'] for x in d['trend']),0)
+        self.assertEqual(self.request('/api/enrollments',{'course_id':4,'enroll':True})[0],200)
+        self.assertEqual(self.request('/api/tasks',{'id':1,'completed':True})[0],400)
+        with app.connect() as db:
+            account=db.execute('SELECT * FROM accounts WHERE username=?',('new.student',)).fetchone()
+            self.assertNotEqual(account['password_hash'],payload['password'])
+            self.assertTrue(app.hmac.compare_digest(account['password_hash'],app.password_hash(payload['password'],account['salt'])))
+        # Duplicate rejection must not create an orphan student.
+        with app.connect() as db: before=db.execute('SELECT count(*) FROM students').fetchone()[0]
+        self.assertEqual(self.request('/api/register',payload)[0],409)
+        with app.connect() as db: self.assertEqual(before,db.execute('SELECT count(*) FROM students').fetchone()[0])
+
+    def test_registration_validation_is_atomic(self):
+        payload={'name':'Valid Student','email':'valid@example.org','username':'valid.student',
+                 'password':'StrongPassword123','confirm_password':'StrongPassword123','program':'Computer Science'}
+        with app.connect() as db: before=db.execute('SELECT count(*) FROM students').fetchone()[0]
+        for field,value in [('name',''),('email','bad'),('username','x'),('username','bad name'),
+                            ('password','short'),('confirm_password','different'),('program','Unknown')]:
+            invalid=dict(payload);invalid[field]=value
+            self.assertEqual(self.request('/api/register',invalid)[0],400,(field,value))
+        self.assertEqual(self.request('/api/register',{})[0],400)
+        with app.connect() as db: self.assertEqual(before,db.execute('SELECT count(*) FROM students').fetchone()[0])
 
     def test_aggregate_values(self):
         status,d=self.request('/api/dashboard')

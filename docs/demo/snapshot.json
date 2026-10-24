@@ -369,7 +369,7 @@
       "student_id": 1,
       "course_id": 1,
       "title": "ML Assignment 03",
-      "due_date": "2026-10-24",
+      "due_date": "2026-10-25",
       "completed": 0,
       "code": "CS501"
     },
@@ -378,7 +378,7 @@
       "student_id": 1,
       "course_id": 2,
       "title": "Database Project",
-      "due_date": "2026-10-26",
+      "due_date": "2026-10-27",
       "completed": 0,
       "code": "CS402"
     },
@@ -387,7 +387,7 @@
       "student_id": 1,
       "course_id": 3,
       "title": "Review design patterns",
-      "due_date": "2026-10-27",
+      "due_date": "2026-10-28",
       "completed": 0,
       "code": "CS310"
     },
@@ -396,7 +396,7 @@
       "student_id": 1,
       "course_id": null,
       "title": "Confirm next semester courses",
-      "due_date": "2026-10-28",
+      "due_date": "2026-10-29",
       "completed": 0,
       "code": null
     }
@@ -424,7 +424,7 @@
     },
     {
       "date": "2026-10-24",
-      "minutes": 0
+      "minutes": 180
     },
     {
       "date": "2026-10-25",
@@ -435,5 +435,5 @@
     "credits": 72,
     "gpa": 3.6000000000000005
   },
-  "today": "2026-10-23"
+  "today": "2026-10-24"
 }

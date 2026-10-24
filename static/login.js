@@ -29,3 +29,10 @@ form.addEventListener('submit',async e=>{
     }catch(e){error.textContent=e.message||'Could not connect. Please try again.'}
     finally{submit.disabled=false}
 });
+if(new URLSearchParams(window.location.search).get('registered')==='1'){
+ const message=document.createElement('p');
+ message.setAttribute('role','status');
+ message.style.cssText='color:#16805c;font-size:12px';
+ message.textContent='Account created successfully. Sign in with your new username and password.';
+ form.before(message);
+}

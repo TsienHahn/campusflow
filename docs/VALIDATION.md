@@ -5,7 +5,7 @@ performed, not external CI runs or user research.
 
 | Check | Result | What it establishes |
 |---|---|---|
-| `python -m unittest -v test_app` | 6 integration tests passed | SQL totals, reads/writes, enroll/drop, conflicts, duplicate rejection, validation, origin checks |
+| `python -m unittest -v test_app` | 8 integration tests passed | SQL totals, reads/writes, enroll/drop, conflicts, duplicate rejection, validation, origin checks |
 | `node --check static/app.js` | Passed | Application JavaScript parses |
 | Seven-view renderer smoke check in Node | Passed | Each route generates markup using SQL fixture data |
 | `python scripts/build_demo.py` | Passed | Fresh SQL database exports dashboard JSON and Pages assets |
@@ -45,3 +45,5 @@ real browser. GitHub Actions and Pages have not been run on a user's repository.
 No performance benchmark or production security assessment is claimed.
 
 Login update: tests also verify anonymous access rejection, incorrect credentials, logout invalidation, session expiry and isolation between two students. Browser visual QA remains incomplete.
+
+Registration update verified on 2026-10-24: successful registration and login, fresh student metrics, duplicate normalized usernames, atomic rejection, input validation and password hash verification.

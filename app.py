@@ -6,6 +6,7 @@ import json
 import hashlib
 import hmac
 import secrets
+import re
 import time
 from http.cookies import SimpleCookie
 from pathlib import Path
@@ -133,7 +134,7 @@ class Handler(BaseHTTPRequestHandler):
             try: self.reply(200,dashboard(session['student_id']))
             except sqlite3.Error: self.reply(500,{'error':'Database query failed.'})
             return
-        files = {'/':'index.html','/login':'login.html','/login.html':'login.html','/login.js':'login.js','/login.css':'login.css','/app.js':'app.js','/style.css':'style.css'}
+        files = {'/':'index.html','/login':'login.html','/register':'register.html','/register.html':'register.html','/register.js':'register.js','/login.html':'login.html','/login.js':'login.js','/login.css':'login.css','/app.js':'app.js','/style.css':'style.css'}
         if path not in files:
             self.reply(404,{'error':'Not found'}); return
         file = ROOT/'static'/files[path]
@@ -157,6 +158,41 @@ class Handler(BaseHTTPRequestHandler):
             path = urlparse(self.path).path
             if self.headers.get('Content-Type','').split(';')[0] != 'application/json':
                 self.reply(415,{'error':'Expected application/json.'}); return
+            if path == '/api/register':
+                fields = ('name','email','username','password','confirm_password','program')
+                if any(not isinstance(data.get(k),str) for k in fields):
+                    raise ValueError('Complete all registration fields.')
+                name = data['name'].strip()
+                email = data['email'].strip().lower()
+                username = data['username'].strip().lower()
+                password = data['password']
+                program = data['program'].strip()
+                if not 1 <= len(name) <= 80:
+                    raise ValueError('Full name must contain 1 to 80 characters.')
+                if len(email)>160 or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',email):
+                    raise ValueError('Enter a valid email address.')
+                if not re.fullmatch(r'[a-z0-9][a-z0-9._-]{2,31}',username):
+                    raise ValueError('Username must be 3–32 characters: letters, numbers, dots, underscores or hyphens; start with a letter or number.')
+                if not 10 <= len(password) <= 128:
+                    raise ValueError('Password must contain 10 to 128 characters.')
+                if password != data['confirm_password']:
+                    raise ValueError('Passwords do not match.')
+                if program not in ('Computer Science','Data Science','Software Engineering'):
+                    raise ValueError('Choose a listed study program.')
+                salt = secrets.token_hex(16)
+                hashed = password_hash(password,salt)
+                with connect() as db:
+                    db.execute('BEGIN IMMEDIATE')
+                    if db.execute('SELECT 1 FROM accounts WHERE username=?',(username,)).fetchone():
+                        self.reply(409,{'error':'This username is already taken.'}); return
+                    # Student identity is assigned by the server, not the request.
+                    student_number = 'CF-' + secrets.token_hex(8).upper()
+                    cursor = db.execute('INSERT INTO students(name,student_number,email,program,semester,target_credits) VALUES (?,?,?,?,1,120)',
+                      (name,student_number,email,program))
+                    db.execute('INSERT INTO accounts(student_id,username,salt,password_hash) VALUES (?,?,?,?)',
+                      (cursor.lastrowid,username,salt,hashed))
+                self.reply(201,{'ok':True,'message':'Account created. Please sign in.'})
+                return
             if path == '/api/login':
                 username = str(data.get('username','')).strip().lower()
                 password = str(data.get('password',''))

@@ -49,6 +49,10 @@ and learning project, not a deployed university information system.
 | Timetable | Weekly schedule derived from active enrollments | `courses`, `enrollments` |
 | Tasks | Mark tasks complete; persist status | `tasks` |
 
+## Student registration
+
+Choose **Create an account** on `/login`, or open `/register`. New accounts receive a server-generated student number and an independent empty workspace. Username uniqueness and password confirmation are checked server-side; passwords use salted hashes. After registration, sign in with the new username. [Upgrade guide / 中文](docs/REGISTER_SETUP_ZH.md).
+
 ## Run locally
 
 Requires Python **3.10+**. No third-party packages or API keys are required.
@@ -142,7 +146,7 @@ intentionally committed, generated demonstration outputs with no private data.
 ## Limitations and next steps
 
 - Login uses salted PBKDF2 password hashes and expiring, server-side sessions.
-  The included account is a public local demo credential; no registration or password-reset UI is provided.
+  The included account is a public local demo credential. Registration is available; email verification and password reset are not implemented.
   For deployment, add HTTPS/Secure cookies, login throttling and an account lifecycle policy.
 - Study logs, progress and grades are seed data; there is no automatic activity
   collection, teacher grading interface or learning content player.

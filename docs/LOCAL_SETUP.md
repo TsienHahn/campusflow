@@ -45,7 +45,7 @@ count toward the current week. Future/unrecorded days show zero, not forecasts.
 
 The seed includes one fictional student. Login is now required: username
 `alex.morgan`, password `CampusFlow2026!`. API access is scoped to the session student.
-There is no registration, password reset, real LMS integration, grade entry UI or
+Registration is available at /register. There is no password reset, real LMS integration, grade entry UI or
 course content player. “Details” displays course information. Study logs,
 progress and grades are sample records managed in SQL, not browser activity
 tracking. All text is in English; the UI uses a demonstration 4.0 GPA scale,

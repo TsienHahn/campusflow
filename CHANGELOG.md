@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 — 2026-10-24
+
+- English registration page and login-page registration link.
+- Atomic student/account creation, username uniqueness and input validation.
+- New student workspaces start with zero credits and independent records.
+- Registration, duplicate rejection, password hashing and isolation tests.
+
 ## 0.2.0 — 2026-10-23
 
 - English login page, demo credential fill and sign out.

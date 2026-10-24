@@ -33,6 +33,7 @@ async function write(){toast('Read-only preview. Run the Python project locally 
     # The static demo has an entry screen, never simulated password authentication.
     js = js[:js.index("$('#logout').addEventListener")]+"$('#logout').addEventListener('click',()=>location.replace('./'));\n"
     login = (ROOT/'static'/'login.html').read_text(encoding='utf-8')
+    login = login.replace('<p class="auth-link">New to CampusFlow? <a href="./register">Create an account</a></p>','')
     login = login.replace('Sign in · CampusFlow','Explore demo · CampusFlow')
     login = login.replace('Welcome back.','Explore CampusFlow.')
     login = login.replace('Sign in to continue your learning journey.','A read-only preview of your student workspace.')
@@ -43,7 +44,7 @@ async function write(){toast('Read-only preview. Run the Python project locally 
     box_end = login.index('</div>',box_start)+len('</div>')
     login = login[:box_start]+'<div class="demo-box"><strong>Read-only SQL snapshot</strong><p>No sign-in is performed on GitHub Pages. Run the Python application locally to use real login and persistent changes.</p></div>'+login[box_end:]
     login = login.replace('<script src="./login.js" defer></script>','')
-    login = login.replace('Local learning project · fictional student records.<br>Sessions expire after 8 hours. No registration is required.','Fictional records · public static demonstration.<br>The full local version includes authenticated sessions.')
+    login = login.replace('Local learning project · fictional student records.<br>Sessions expire after 8 hours. New students can create an account.','Fictional records · public static demonstration.<br>The full local version includes authenticated sessions.')
     (output/'index.html').write_text(login,encoding='utf-8')
     (output/'dashboard.html').write_text(html,encoding='utf-8')
     (output/'app.js').write_text(js,encoding='utf-8')
